@@ -4,6 +4,8 @@ import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import chatRouter from "./routes/chatRoutes.js";
+import createPredefinedUsersAndChats from "./scripts/predefinedUsersAndChats.js";
+import authRouter from "./routes/authRoutes.js";
 
 dotenv.config();
 
@@ -15,7 +17,8 @@ app.use(morgan("tiny"));
 app.use(express.json());
 app.use(express.static("public"));
 
-app.use("/chats", chatRouter);
+app.use("/chat", chatRouter);
+app.use("/auth", authRouter);
 
 app.use((_, res) => {
   res.status(404).json({ message: "Route not found" });
@@ -29,6 +32,7 @@ app.use((err, req, res, next) => {
 mongoose
   .connect(DB_HOST)
   .then(() => {
+    createPredefinedUsersAndChats();
     app.listen(PORT, () => {
       console.log("Database connection successful");
     });
@@ -37,6 +41,3 @@ mongoose
     console.log(error.message);
     process.exit(1);
   });
-
-// app.use("/api/chats", require("./routes/chatRoutes"));
-// app.use("/api/messages", require("./routes/messageRoutes"));

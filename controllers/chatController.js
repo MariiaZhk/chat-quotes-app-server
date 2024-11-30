@@ -1,4 +1,3 @@
-import ctrWrapper from "../decorators/ctrlWrapper.js";
 import {
   find,
   create,
@@ -7,35 +6,25 @@ import {
   addMessageToChat,
 } from "../services/chatServices.js";
 import HttpError from "../helpers/HttpError.js";
+import ctrWrapper from "../decorators/ctrlWrapper.js";
 
-export const getChats = ctrWrapper(async (req, res) => {
-  const chats = await find();
-  if (!chats || chats.length === 0) {
-    throw HttpError(404, "No chats found");
-  }
-  res.status(200).json(chats);
-});
-
-export const createChat = ctrWrapper(async (req, res) => {
-  const { firstName, lastName } = req.body;
+const getChats = async (req, res) => {
   const userId = req.user.id;
+  const chats = await find(userId);
 
-  if (!firstName || !lastName) {
-    throw HttpError(400, "First name and last name are required");
-  }
+  res.status(200).json(chats);
+};
 
-  const newChat = await create(userId, { firstName, lastName });
+const createChat = async (req, res) => {
+  const userId = req.user.id;
+  const newChat = await create(userId, req.body);
 
   res.status(201).json(newChat);
-});
+};
 
-export const updateChat = ctrWrapper(async (req, res) => {
+const updateChat = async (req, res) => {
   const { id } = req.params;
   const { firstName, lastName } = req.body;
-
-  if (!firstName || !lastName) {
-    throw HttpError(400, "First name and last name are required");
-  }
 
   const updatedChat = await findByIdAndUpdate(id, { firstName, lastName });
   if (!updatedChat) {
@@ -43,9 +32,9 @@ export const updateChat = ctrWrapper(async (req, res) => {
   }
 
   res.status(200).json(updatedChat);
-});
+};
 
-export const deleteChat = ctrWrapper(async (req, res) => {
+const deleteChat = async (req, res) => {
   const { id } = req.params;
 
   const deletedChat = await findByIdAndDelete(id);
@@ -54,16 +43,24 @@ export const deleteChat = ctrWrapper(async (req, res) => {
   }
 
   res.status(200).json({ message: "Chat deleted" });
-});
+};
 
-export const sendMessage = ctrWrapper(async (req, res) => {
+const sendMessage = async (req, res) => {
   const { chatId, content, sender } = req.body;
 
-  if (!chatId || !content || !sender) {
-    throw HttpError(400, "Chat ID, content, and sender are required");
+  if (!content || !sender) {
+    throw HttpError(400, "Content and sender are required");
   }
 
   const message = await addMessageToChat(chatId, content, sender);
 
   res.status(201).json(message);
-});
+};
+
+export const chatControllers = {
+  getChats: ctrWrapper(getChats),
+  createChat: ctrWrapper(createChat),
+  updateChat: ctrWrapper(updateChat),
+  deleteChat: ctrWrapper(deleteChat),
+  sendMessage: ctrWrapper(sendMessage),
+};

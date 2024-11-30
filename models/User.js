@@ -1,28 +1,29 @@
 import { Schema, model } from "mongoose";
 import bcrypt from "bcryptjs";
+import { emailRegexp } from "../constants/regexp.js";
 
-const UserSchema = new Schema({
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now },
-});
-
-UserSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error) {
-    next(error);
-  }
-});
-
-UserSchema.methods.matchPassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
-};
+const UserSchema = new Schema(
+  {
+    firstName: { type: String, minLength: 2, maxLength: 20, required: true },
+    lastName: { type: String, minLength: 2, maxLength: 20, required: true },
+    password: {
+      type: String,
+      minLength: 8,
+      maxLength: 64,
+      required: [true, "Password is required"],
+    },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      match: emailRegexp,
+      unique: true,
+    },
+    token: {
+      type: String,
+      default: null,
+    },
+  },
+  { versionKey: false, timestamps: true }
+);
 
 export default model("User", UserSchema);

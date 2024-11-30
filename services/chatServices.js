@@ -2,8 +2,8 @@ import Chat from "../models/Chat.js";
 import User from "../models/User.js";
 import Message from "../models/Message.js";
 
-export const find = async () => {
-  return Chat.find().populate("messages");
+export const find = async (userId) => {
+  return await Chat.find({ users: userId }).populate("users messages");
 };
 
 export const create = async (userId, data) => {
@@ -13,12 +13,17 @@ export const create = async (userId, data) => {
   }
 
   const chat = new Chat({
-    user: userId,
-    firstName: data.firstName,
-    lastName: data.lastName,
+    users: [userId],
+    messages: [],
   });
 
-  return chat.save();
+  await chat.save();
+
+  user.chats = user.chats || [];
+  user.chats.push(chat._id);
+  await user.save();
+
+  return chat.populate("users messages");
 };
 
 export const findByIdAndUpdate = async (id, data) => {
