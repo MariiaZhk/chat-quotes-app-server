@@ -8,7 +8,7 @@ const UserSchema = new Schema(
     lastName: { type: String, minLength: 2, maxLength: 20, required: true },
     password: {
       type: String,
-      minLength: 8,
+      minLength: 6,
       maxLength: 64,
       required: [true, "Password is required"],
     },
@@ -18,10 +18,10 @@ const UserSchema = new Schema(
       match: emailRegexp,
       unique: true,
     },
-    token: {
-      type: String,
-      default: null,
-    },
+    // token: {
+    //   type: String,
+    //   default: null,
+    // },
   },
   { versionKey: false, timestamps: true }
 );
