@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
-import Chat from "./Chat.js";
 import User from "./User.js";
+import Chat from "./Chat.js";
 
 const MessageSchema = new Schema({
   content: { type: String, required: true },

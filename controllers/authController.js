@@ -3,7 +3,24 @@ import HttpError from "../helpers/HttpError.js";
 import ctrWrapper from "../decorators/ctrlWrapper.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import Chat from "../models/Chat.js";
 
+// const register = async (req, res) => {
+//   const { email } = req.body;
+//   const normalizedEmail = email.toLowerCase();
+//   const existingUser = await findUser({ email: normalizedEmail });
+//   if (existingUser) {
+//     throw HttpError(400, "User with this email already exists");
+//   }
+//   const newUser = await signUp(req.body);
+//   const token = await sign({ email });
+//   res.status(201).json({
+//     token,
+//     email: newUser.email,
+//     firstName: newUser.firstName,
+//     lastName: newUser.lastName,
+//   });
+// };
 const register = async (req, res) => {
   const { email } = req.body;
   const normalizedEmail = email.toLowerCase();
@@ -11,7 +28,12 @@ const register = async (req, res) => {
   if (existingUser) {
     throw HttpError(400, "User with this email already exists");
   }
-  const newUser = await signUp(req.body);
+  const predefinedChats = await Chat.find({ predefined: true });
+  const predefinedChatIds = predefinedChats.map((chat) => chat._id);
+  const newUser = await signUp({
+    ...req.body,
+    chats: predefinedChatIds,
+  });
   const token = await sign({ email });
   res.status(201).json({
     token,

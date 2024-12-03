@@ -4,20 +4,20 @@ import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import chatRouter from "./routes/chatRoutes.js";
-import createPredefinedUsersAndChats from "./scripts/predefinedUsersAndChats.js";
 import authRouter from "./routes/authRoutes.js";
+import createPredefinedChats from "./scripts/predefinedChats.js";
 
 dotenv.config();
 
 const app = express();
-const { DB_HOST, PORT = 4000 } = process.env;
+const { DB_HOST, PORT } = process.env;
 
 app.use(cors());
 app.use(morgan("tiny"));
 app.use(express.json());
 app.use(express.static("public"));
 
-app.use("/chat", chatRouter);
+app.use("/chats", chatRouter);
 app.use("/auth", authRouter);
 
 app.use((_, res) => {
@@ -32,7 +32,7 @@ app.use((err, req, res, next) => {
 mongoose
   .connect(DB_HOST)
   .then(() => {
-    createPredefinedUsersAndChats();
+    createPredefinedChats();
     app.listen(PORT, () => {
       console.log("Database connection successful");
     });

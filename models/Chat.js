@@ -1,9 +1,19 @@
-import { Schema, model } from "mongoose";
-import User from "./User.js";
+import mongoose from "mongoose";
 
-const ChatSchema = new Schema({
-  users: [{ type: Schema.Types.ObjectId, ref: User, required: true }],
-  messages: [{ type: Schema.Types.ObjectId, ref: "Message" }],
+const chatSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  predefined: {
+    type: Boolean,
+    default: false,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-export default model("Chat", ChatSchema);
+const Chat = mongoose.model("Chat", chatSchema);
+export default Chat;
