@@ -20,3 +20,16 @@ export const deleteChat = async (chatId, userId) => {
 export const updateChatName = async (chatId, newName) => {
   return Chat.findByIdAndUpdate(chatId, { name: newName }, { new: true });
 };
+
+export const addMessageToChat = async (chatId, senderId, content) => {
+  const message = { content, sender: senderId, timestamp: new Date() };
+  const chat = await Chat.findById(chatId);
+
+  if (!chat) {
+    throw new Error("Chat not found");
+  }
+
+  chat.messages.push(message); // Додаємо повідомлення до масиву
+  await chat.save(); // Зберігаємо зміни в чаті
+  return chat;
+};
