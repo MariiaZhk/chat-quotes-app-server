@@ -54,8 +54,8 @@ const logout = async (req, res) => {
 };
 
 const getCurrent = async (req, res) => {
-  const { email, findUser, lastName, createdAt } = req.user;
-  res.status(200).json({ email, findUser, lastName, createdAt });
+  const { email, firstName, lastName, createdAt } = req.user;
+  res.status(200).json({ email, firstName, lastName });
 };
 
 const sign = async (user) => {

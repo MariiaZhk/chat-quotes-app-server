@@ -3,7 +3,7 @@ import {
   getChats,
   deleteChat,
   updateChatName,
-  addMessageToChat,
+  getChatMessages,
 } from "../services/chatServices.js";
 import ctrWrapper from "../decorators/ctrlWrapper.js";
 import HttpError from "../helpers/HttpError.js";
@@ -32,7 +32,7 @@ const removeChat = async (req, res) => {
   res.status(204).end();
 };
 
-const renameChat = async (req, res) => {
+const updateChat = async (req, res) => {
   const { id: chatId } = req.params;
   const { name } = req.body;
   if (!name) {
@@ -45,24 +45,26 @@ const renameChat = async (req, res) => {
   res.status(200).json(updatedChat);
 };
 
-const addMessage = async (req, res) => {
-  const { chatId } = req.params;
-  const { content } = req.body;
-  const { _id: userId } = req.user;
-  if (!content) {
-    throw HttpError(400, "Message content is required");
+// const addMessageToChat = async (req, res) => {
+//   const { id: chatId } = req.params;
+//   const { content, sender, senderType } = req.body;
+//   const updatedChat = await addMessage(chatId, content, sender, senderType);
+//   res.status(200).json(updatedChat);
+// };
+
+const getMessageHistory = async (req, res) => {
+  const { id: chatId } = req.params;
+  const messages = await getChatMessages(chatId);
+  if (!messages) {
+    throw HttpError(404, "Chat not found or no messages available");
   }
-  try {
-    const updatedChat = await addMessageToChat(chatId, userId, content);
-    res.status(201).json(updatedChat);
-  } catch (error) {
-    throw HttpError(500, "Error adding message");
-  }
+  res.status(200).json(messages);
 };
+
 export default {
   addChat: ctrWrapper(addChat),
   getAllChats: ctrWrapper(getAllChats),
   removeChat: ctrWrapper(removeChat),
-  renameChat: ctrWrapper(renameChat),
-  addMessage: ctrWrapper(addMessage),
+  updateChat: ctrWrapper(updateChat),
+  getMessageHistory: ctrWrapper(getMessageHistory),
 };

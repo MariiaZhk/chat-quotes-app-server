@@ -3,14 +3,26 @@ import morgan from "morgan";
 import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import { Server } from "socket.io";
+import http from "http"; // Для створення HTTP сервера
+import jwt from "jsonwebtoken"; // Для роботи з токенами
 import chatRouter from "./routes/chatRoutes.js";
 import authRouter from "./routes/authRoutes.js";
 import createPredefinedChats from "./scripts/predefinedChats.js";
+import { chatSocketHandler } from "./socetHandlers/chatSocet.js";
 
 dotenv.config();
 
 const app = express();
-const { DB_HOST, PORT } = process.env;
+const server = http.createServer(app); // Створіть HTTP сервер
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5174", // Забезпечте коректні домени для клієнта
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  },
+});
+
+const { DB_HOST, PORT, JWT_SECRET } = process.env;
 
 app.use(cors());
 app.use(morgan("tiny"));
@@ -33,7 +45,7 @@ mongoose
   .connect(DB_HOST)
   .then(() => {
     createPredefinedChats();
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log("Database connection successful");
     });
   })
@@ -41,3 +53,19 @@ mongoose
     console.log(error.message);
     process.exit(1);
   });
+
+io.use((socket, next) => {
+  const token = socket.handshake.auth?.token;
+  if (!token) {
+    return next(new Error("Authentication error: No token provided"));
+  }
+
+  try {
+    const user = jwt.verify(token, JWT_SECRET);
+    socket.user = user;
+  } catch (err) {
+    next(new Error("Authentication error: Invalid token"));
+  }
+});
+
+io.on("connection", chatSocketHandler(io));

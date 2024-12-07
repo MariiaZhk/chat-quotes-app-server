@@ -21,14 +21,22 @@ chatRouter.put(
   "/:id",
   authenticate,
   validateBody(renameChatSchema),
-  chatControllers.renameChat
+  chatControllers.updateChat
 );
-chatRouter.put("/:id", authenticate, chatControllers.renameChat);
-chatRouter.post(
-  "/:chatId/messages",
-  validateBody(addMessageSchema),
+
+// chatRouter.post(
+//   "/:id/messages",
+//   validateBody(addMessageSchema),
+//   authenticate,
+//   chatControllers.addMessageToChat
+// );
+
+chatRouter.delete("/:id", authenticate, chatControllers.removeChat);
+
+chatRouter.get(
+  "/:id/messages",
   authenticate,
-  chatControllers.addMessage
+  chatControllers.getMessageHistory
 );
 
 export default chatRouter;

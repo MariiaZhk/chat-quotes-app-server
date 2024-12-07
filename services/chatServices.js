@@ -1,4 +1,5 @@
 import Chat from "../models/Chat.js";
+import Message from "../models/Message.js";
 import User from "../models/User.js";
 
 export const createChat = async (userId, chatData) => {
@@ -21,15 +22,23 @@ export const updateChatName = async (chatId, newName) => {
   return Chat.findByIdAndUpdate(chatId, { name: newName }, { new: true });
 };
 
-export const addMessageToChat = async (chatId, senderId, content) => {
-  const message = { content, sender: senderId, timestamp: new Date() };
-  const chat = await Chat.findById(chatId);
+// export const addMessage = async (chatId, content, sender, senderType) => {
+//   const message = new Message({
+//     content,
+//     sender,
+//     senderType,
+//     timestamp: new Date(),
+//   });
 
-  if (!chat) {
-    throw new Error("Chat not found");
-  }
+//   await message.save();
 
-  chat.messages.push(message); // Додаємо повідомлення до масиву
-  await chat.save(); // Зберігаємо зміни в чаті
-  return chat;
+//   return Chat.findByIdAndUpdate(
+//     chatId,
+//     { $push: { messages: message } },
+//     { new: true }
+//   );
+// };
+export const getChatMessages = async (chatId) => {
+  const chat = await Chat.findById(chatId).populate("messages");
+  return chat ? chat.messages : null;
 };
