@@ -14,10 +14,10 @@ import { chatSocketHandler } from "./socetHandlers/chatSocet.js";
 dotenv.config();
 
 const app = express();
-const server = http.createServer(app); // Створіть HTTP сервер
+const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5174", // Забезпечте коректні домени для клієнта
+    origin: "https://chat-quotes-app-client.vercel.app/",
     methods: ["GET", "POST", "PUT", "DELETE"],
   },
 });
