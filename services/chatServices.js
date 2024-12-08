@@ -1,3 +1,4 @@
+import HttpError from "../helpers/HttpError.js";
 import Chat from "../models/Chat.js";
 import Message from "../models/Message.js";
 import User from "../models/User.js";
@@ -22,23 +23,20 @@ export const updateChatName = async (chatId, newName) => {
   return Chat.findByIdAndUpdate(chatId, { name: newName }, { new: true });
 };
 
-// export const addMessage = async (chatId, content, sender, senderType) => {
-//   const message = new Message({
-//     content,
-//     sender,
-//     senderType,
-//     timestamp: new Date(),
-//   });
+export const addMessage = async (chatId, content, sender) => {
+  console.log("Chat ID:", chatId);
+  const chat = await Chat.findById(chatId);
+  if (!chat) {
+    throw new Error("Chat not found");
+  }
+  const newMessage = new Message({
+    content,
+    sender,
+    chatId,
+  });
+  await newMessage.save();
+  chat.messages.push(newMessage._id);
+  await chat.save();
 
-//   await message.save();
-
-//   return Chat.findByIdAndUpdate(
-//     chatId,
-//     { $push: { messages: message } },
-//     { new: true }
-//   );
-// };
-export const getChatMessages = async (chatId) => {
-  const chat = await Chat.findById(chatId).populate("messages");
-  return chat ? chat.messages : null;
+  return newMessage;
 };

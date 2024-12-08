@@ -1,12 +1,7 @@
 // Chat.js
 import mongoose from "mongoose";
 import { Schema } from "mongoose";
-
-const messageSchema = new Schema({
-  content: { type: String, required: true },
-  sender: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  timestamp: { type: Date, default: Date.now },
-});
+import { messageSchema } from "./Message.js";
 
 const chatSchema = new Schema({
   name: {
@@ -21,7 +16,7 @@ const chatSchema = new Schema({
     type: Date,
     default: Date.now,
   },
-  messages: [messageSchema],
+  messages: [{ type: mongoose.Schema.Types.ObjectId, ref: "Message" }],
 });
 chatSchema.pre("save", function (next) {
   if (this.messages.length > 100) {

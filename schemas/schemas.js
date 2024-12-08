@@ -26,14 +26,6 @@ export const renameChatSchema = Joi.object({
 
 export const addMessageSchema = Joi.object({
   content: Joi.string().required(),
-  // sender: Joi.alternatives()
-  //   .try(
-  //     Joi.string().regex(/^[0-9a-fA-F]{24}$/),
-  //     Joi.string().valid("quotable")
-  //   )
-  //   .required(),
-  // senderType: Joi.string().valid("User", "Bot").required(),
   sender: Joi.string().required(),
-  senderType: Joi.string().valid("You", "Quotable").required(),
-  timestamp: Joi.date().iso().required(),
+  timestamp: Joi.date().iso(),
 });

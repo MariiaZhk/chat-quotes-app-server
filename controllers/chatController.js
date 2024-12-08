@@ -3,10 +3,11 @@ import {
   getChats,
   deleteChat,
   updateChatName,
-  getChatMessages,
+  addMessage,
 } from "../services/chatServices.js";
 import ctrWrapper from "../decorators/ctrlWrapper.js";
 import HttpError from "../helpers/HttpError.js";
+import Chat from "../models/Chat.js";
 
 const addChat = async (req, res) => {
   const { _id: userId } = req.user;
@@ -45,20 +46,32 @@ const updateChat = async (req, res) => {
   res.status(200).json(updatedChat);
 };
 
-// const addMessageToChat = async (req, res) => {
-//   const { id: chatId } = req.params;
-//   const { content, sender, senderType } = req.body;
-//   const updatedChat = await addMessage(chatId, content, sender, senderType);
-//   res.status(200).json(updatedChat);
-// };
-
-const getMessageHistory = async (req, res) => {
+export const addMessageToChat = async (req, res) => {
   const { id: chatId } = req.params;
-  const messages = await getChatMessages(chatId);
-  if (!messages) {
-    throw HttpError(404, "Chat not found or no messages available");
+  const { content, sender, timestamp } = req.body;
+  if (!content || !sender) {
+    throw HttpError(400, "Message text and sender are required");
   }
-  res.status(200).json(messages);
+  try {
+    const newMessage = await addMessage(chatId, content, sender, timestamp);
+    res.status(201).json(newMessage);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to add message" });
+  }
+};
+
+const getChatMessages = async (req, res) => {
+  const { id: chatId } = req.params;
+
+  const chat = await Chat.findById(chatId).populate({
+    path: "messages",
+    populate: { path: "sender", select: "name" },
+  });
+  if (!chat) {
+    throw HttpError(404, "Chat not found");
+  }
+  res.status(200).json(chat.messages);
 };
 
 export default {
@@ -66,5 +79,6 @@ export default {
   getAllChats: ctrWrapper(getAllChats),
   removeChat: ctrWrapper(removeChat),
   updateChat: ctrWrapper(updateChat),
-  getMessageHistory: ctrWrapper(getMessageHistory),
+  addMessageToChat: ctrWrapper(addMessageToChat),
+  getChatMessages: ctrWrapper(getChatMessages),
 };

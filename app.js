@@ -63,6 +63,7 @@ io.use((socket, next) => {
   try {
     const user = jwt.verify(token, JWT_SECRET);
     socket.user = user;
+    next();
   } catch (err) {
     next(new Error("Authentication error: Invalid token"));
   }
