@@ -4,8 +4,8 @@ import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import { Server } from "socket.io";
-import http from "http"; // Для створення HTTP сервера
-import jwt from "jsonwebtoken"; // Для роботи з токенами
+import http from "http";
+import jwt from "jsonwebtoken";
 import chatRouter from "./routes/chatRoutes.js";
 import authRouter from "./routes/authRoutes.js";
 import createPredefinedChats from "./scripts/predefinedChats.js";
