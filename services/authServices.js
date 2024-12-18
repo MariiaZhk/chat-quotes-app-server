@@ -8,7 +8,7 @@ export const signUp = async (data) => {
 };
 
 export const setToken = (id, token = null) => {
-  return User.findByIdAndUpdate(id, { token });
+  return User.findByIdAndUpdate(id, { token }, { new: true });
 };
 
 export const findUser = (filter) => {

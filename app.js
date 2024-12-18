@@ -8,7 +8,6 @@ import http from "http";
 import jwt from "jsonwebtoken";
 import chatRouter from "./routes/chatRoutes.js";
 import authRouter from "./routes/authRoutes.js";
-import createPredefinedChats from "./scripts/predefinedChats.js";
 import { chatSocketHandler } from "./socetHandlers/chatSocet.js";
 
 dotenv.config();
@@ -17,7 +16,8 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://chat-quotes-app-client.vercel.app/",
+    // origin: "https://chat-quotes-app-client.vercel.app/",
+    origin: "http://localhost:5173/",
     methods: ["GET", "POST", "PUT", "DELETE"],
   },
 });
@@ -44,7 +44,6 @@ app.use((err, req, res, next) => {
 mongoose
   .connect(DB_HOST)
   .then(() => {
-    createPredefinedChats();
     server.listen(PORT, () => {
       console.log("Database connection successful");
     });

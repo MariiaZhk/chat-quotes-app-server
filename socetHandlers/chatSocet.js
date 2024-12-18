@@ -1,6 +1,5 @@
 import { addMessageToChat } from "../controllers/chatController.js";
 import Chat from "../models/Chat.js";
-import Message from "../models/Message.js";
 
 export const chatSocketHandler = (io) => {
   return (socket) => {
@@ -18,9 +17,9 @@ export const chatSocketHandler = (io) => {
 
     socket.on("send_message", async (data) => {
       try {
-        const { chatId, content, sender, timestamp } = data;
+        const { userId, content, sender, timestamp } = data;
         const newMessage = await addMessageToChat(
-          chatId,
+          userId,
           content,
           sender,
           timestamp

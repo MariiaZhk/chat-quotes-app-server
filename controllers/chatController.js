@@ -21,10 +21,15 @@ const addChat = async (req, res) => {
 
 const getAllChats = async (req, res) => {
   const { _id: userId } = req.user;
-  console.log("User ID:", userId);
   const chats = await getChats(userId);
   res.status(200).json(chats);
 };
+
+// export const getAllChats = async (userId) => {
+//   const userChats = await User.findById(userId).populate("chats");
+//   const predefinedChats = await Chat.find({ predefined: true });
+//   return [...predefinedChats, ...userChats.chats];
+// };
 
 const removeChat = async (req, res) => {
   const { id: chatId } = req.params;
@@ -46,28 +51,37 @@ const updateChat = async (req, res) => {
   res.status(200).json(updatedChat);
 };
 
+// export const addMessageToChat = async (req, res) => {
+//   const { id: chatId } = req.params;
+//   const { content, sender, timestamp } = req.body;
+//   if (!content || !sender) {
+//     throw HttpError(400, "Message text and sender are required");
+//   }
+//   try {
+//     const newMessage = await addMessage(chatId, content, sender, timestamp);
+//     res.status(201).json(newMessage);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: "Failed to add message" });
+//   }
+// };
+
 export const addMessageToChat = async (req, res) => {
   const { id: chatId } = req.params;
-  const { content, sender, timestamp } = req.body;
+  const { content, sender } = req.body;
+
   if (!content || !sender) {
-    throw HttpError(400, "Message text and sender are required");
+    throw HttpError(400, "Message content and sender are required");
   }
-  try {
-    const newMessage = await addMessage(chatId, content, sender, timestamp);
-    res.status(201).json(newMessage);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to add message" });
-  }
+
+  const newMessage = await addMessage(chatId, content, sender);
+  res.status(201).json(newMessage);
 };
 
 const getChatMessages = async (req, res) => {
   const { id: chatId } = req.params;
 
-  const chat = await Chat.findById(chatId).populate({
-    path: "messages",
-    populate: { path: "sender", select: "name" },
-  });
+  const chat = await Chat.findById(chatId);
   if (!chat) {
     throw HttpError(404, "Chat not found");
   }
