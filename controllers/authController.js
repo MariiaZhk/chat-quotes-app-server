@@ -1,24 +1,30 @@
-import { signUp, setToken, findUser } from "../services/authServices.js";
+import {
+  signUp,
+  setToken,
+  findUser,
+  comparePassword,
+  generateToken,
+} from "../services/authServices.js";
 import HttpError from "../helpers/HttpError.js";
 import ctrWrapper from "../decorators/ctrlWrapper.js";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
 
 const register = async (req, res) => {
-  const { email, firstName, lastName } = req.body;
+  const { email, firstName, lastName, password } = req.body;
   const normalizedEmail = email.toLowerCase();
+
   const existingUser = await findUser({ email: normalizedEmail });
   if (existingUser) {
     throw HttpError(400, "User with this email already exists");
   }
-  const token = jwt.sign({ email: normalizedEmail }, process.env.JWT_SECRET, {
-    expiresIn: "24h",
-  });
+  const token = generateToken({ email: normalizedEmail });
   const newUser = await signUp({
-    ...req.body,
     email: normalizedEmail,
+    firstName,
+    lastName,
+    password,
     token,
   });
+
   res.status(201).json({
     token,
     user: {
@@ -38,13 +44,12 @@ const login = async (req, res) => {
     throw HttpError(401, "Invalid email or password");
   }
 
-  const passwordCompare = await bcrypt.compare(password, user.password);
+  const passwordCompare = await comparePassword(password, user.password);
   if (!passwordCompare) {
     throw HttpError(401, "Invalid email or password");
   }
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-    expiresIn: "10d",
-  });
+
+  const token = generateToken({ id: user._id });
   await setToken(user._id, token);
 
   res.json({

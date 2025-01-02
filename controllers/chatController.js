@@ -25,12 +25,6 @@ const getAllChats = async (req, res) => {
   res.status(200).json(chats);
 };
 
-// export const getAllChats = async (userId) => {
-//   const userChats = await User.findById(userId).populate("chats");
-//   const predefinedChats = await Chat.find({ predefined: true });
-//   return [...predefinedChats, ...userChats.chats];
-// };
-
 const removeChat = async (req, res) => {
   const { id: chatId } = req.params;
   const { _id: userId } = req.user;

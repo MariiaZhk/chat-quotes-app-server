@@ -1,9 +1,18 @@
-import User from "../models/User.js";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
+
+const hashPassword = (password) => {
+  return bcrypt.hash(password, 10);
+};
+
+const generateToken = (payload) => {
+  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "10d" });
+};
 
 export const signUp = async (data) => {
   const { password } = data;
-  const hashedPassword = await bcrypt.hash(password, 6);
+  const hashedPassword = await hashPassword(password);
   return User.create({ ...data, password: hashedPassword });
 };
 
@@ -20,3 +29,9 @@ export const findUserById = (id) => {
 };
 
 export const updateUser = (id, data) => User.findByIdAndUpdate(id, data);
+
+export const comparePassword = (password, hashedPassword) => {
+  return bcrypt.compare(password, hashedPassword);
+};
+
+export { generateToken };
